@@ -21,7 +21,708 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/static/css/style.css" />
+  <style>
+/* ═══════════════════════════════════════════════
+   GAUSS–NEWTON · NUMERICAL METHODS
+   Design: Dark academic / scientific editorial
+═══════════════════════════════════════════════ */
+
+:root {
+  --ink:      #0d0d14;
+  --paper:    #f7f5ef;
+  --cream:    #ede9df;
+  --dark:     #111118;
+  --card-bg:  #ffffff;
+  --accent:   #c8500a;
+  --accent2:  #1a6b8a;
+  --gold:     #c9a84c;
+  --muted:    #6b6b7a;
+  --border:   #e0ddd4;
+  --code-bg:  #1e1e2e;
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body:    'Outfit', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+  --radius:   12px;
+  --shadow:   0 4px 24px rgba(0,0,0,0.08);
+  --shadow-lg:0 12px 48px rgba(0,0,0,0.14);
+}
+
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ── Typography ── */
+h1,h2,h3,h4 { font-family: var(--font-display); line-height: 1.2; }
+
+em { font-style: italic; }
+
+p { margin-bottom: 1rem; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--cream);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--accent);
+}
+
+a { color: var(--accent2); text-decoration: none; }
+
+/* ── Container ── */
+.container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+
+/* ══════════════════════════════════════════════
+   HERO
+══════════════════════════════════════════════ */
+.hero {
+  position: relative;
+  background: var(--dark);
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 70% 40%, rgba(200,80,10,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 10% 80%, rgba(26,107,138,0.18) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* Grid overlay */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
+
+.topnav {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.brand {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.7);
+}
+
+.topic-badge {
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  letter-spacing: 0.08em;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem 2.5rem;
+  max-width: 700px;
+}
+
+.pre-title {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
+
+.hero h1 {
+  font-size: clamp(3.5rem, 8vw, 7rem);
+  line-height: 1.0;
+  color: #fff;
+  margin-bottom: 1.5rem;
+}
+
+.hero h1 em {
+  color: var(--gold);
+}
+
+.hero-sub {
+  font-size: 1.1rem;
+  color: rgba(255,255,255,0.65);
+  max-width: 480px;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.hero-pills {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+}
+
+.hero-pills span {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.75);
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  padding: 4px 14px;
+  border-radius: 20px;
+  letter-spacing: 0.06em;
+}
+
+.cta-btn {
+  display: inline-block;
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.8rem 2rem;
+  border-radius: 8px;
+  transition: background 0.2s, transform 0.2s;
+  align-self: flex-start;
+  letter-spacing: 0.02em;
+}
+.cta-btn:hover { background: #a03e05; transform: translateY(-2px); }
+
+.scroll-line {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  height: 80px;
+  background: linear-gradient(to bottom, transparent, var(--gold));
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+/* ══════════════════════════════════════════════
+   SECTIONS
+══════════════════════════════════════════════ */
+.section { padding: 6rem 0; }
+
+.section-dark {
+  background: var(--dark);
+  color: #fff;
+}
+
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.section-dark .section-label { color: var(--gold); }
+
+.section-title {
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  margin-bottom: 3rem;
+  position: relative;
+}
+
+.section-title::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 3px;
+  background: var(--accent);
+  margin-top: 0.75rem;
+}
+
+.section-dark .section-title::after { background: var(--gold); }
+
+/* ══════════════════════════════════════════════
+   DISCUSSION CARDS
+══════════════════════════════════════════════ */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem 2.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.card h3 {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  color: var(--ink);
+}
+
+.card p { color: #333; }
+
+.algo-list {
+  list-style: none;
+  counter-reset: algo;
+  padding: 0;
+}
+
+.algo-list li {
+  counter-increment: algo;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border);
+  color: #333;
+}
+
+.algo-list li::before {
+  content: counter(algo, decimal-leading-zero);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent);
+  min-width: 2em;
+  margin-top: 2px;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.pros, .cons {
+  padding: 1.2rem 1.5rem;
+  border-radius: 8px;
+}
+
+.pros {
+  background: #f0faf4;
+  border-left: 4px solid #2a9d5c;
+}
+
+.cons {
+  background: #fef3f0;
+  border-left: 4px solid var(--accent);
+}
+
+.pros h4 { color: #1a6b3a; margin-bottom: 0.6rem; font-size: 0.95rem; }
+.cons h4 { color: var(--accent); margin-bottom: 0.6rem; font-size: 0.95rem; }
+
+.pros ul, .cons ul {
+  list-style: none;
+  padding: 0;
+}
+
+.pros li, .cons li {
+  font-size: 0.9rem;
+  color: #444;
+  padding: 0.25rem 0;
+}
+
+/* ══════════════════════════════════════════════
+   EXAMPLE CARDS
+══════════════════════════════════════════════ */
+.example-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius);
+  padding: 2.5rem;
+  margin-bottom: 2.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.example-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+}
+
+.example-number {
+  font-family: var(--font-mono);
+  font-size: 4rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.06);
+  position: absolute;
+  top: 1rem;
+  right: 2rem;
+  line-height: 1;
+  user-select: none;
+}
+
+.example-card h3 {
+  font-size: 1.6rem;
+  color: #fff;
+  margin-bottom: 0.4rem;
+}
+
+.model-desc {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--gold);
+  margin-bottom: 1.8rem;
+}
+
+.step-block {
+  background: rgba(0,0,0,0.25);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.2rem;
+}
+
+.step-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.step-block p { color: rgba(255,255,255,0.8); font-size: 0.95rem; }
+
+.data-table-wrap { overflow-x: auto; margin-bottom: 1rem; }
+
+.data-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.data-tbl th {
+  background: rgba(255,255,255,0.08);
+  color: var(--gold);
+  padding: 0.5rem 1rem;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.data-tbl td {
+  padding: 0.45rem 1rem;
+  text-align: center;
+  color: rgba(255,255,255,0.8);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.result-box {
+  background: rgba(200,168,76,0.15);
+  border: 1px solid rgba(200,168,76,0.4);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  margin-top: 0.8rem;
+  color: var(--gold);
+  font-size: 0.95rem;
+}
+
+/* ══════════════════════════════════════════════
+   CALCULATOR
+══════════════════════════════════════════════ */
+.calc-intro {
+  color: var(--muted);
+  font-size: 0.97rem;
+  margin-bottom: 2.5rem;
+  max-width: 680px;
+}
+
+.calc-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+/* INPUT PANEL */
+.input-panel {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow: var(--shadow);
+}
+
+.field-group {
+  margin-bottom: 1.2rem;
+}
+
+.field-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 0.4rem;
+  letter-spacing: 0.02em;
+}
+
+.hint {
+  font-weight: 400;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.75em;
+  margin-left: 0.4rem;
+}
+
+.field-group input {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: var(--paper);
+  transition: border-color 0.2s;
+  outline: none;
+}
+
+.field-group input:focus {
+  border-color: var(--accent2);
+  background: #fff;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.preset-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.preset-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+
+.preset-btn {
+  background: var(--cream);
+  border: 1px solid var(--border);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 5px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.preset-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.run-btn {
+  width: 100%;
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  padding: 1rem;
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  letter-spacing: 0.03em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.run-btn:hover { background: var(--accent); transform: translateY(-2px); }
+.run-btn:active { transform: translateY(0); }
+
+.btn-spinner { font-size: 1.2rem; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.hidden { display: none !important; }
+
+.error-box {
+  margin-top: 1rem;
+  background: #fff0ee;
+  border: 1px solid #f0c0b0;
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  padding: 0.9rem 1.2rem;
+  color: #8b2500;
+  font-size: 0.88rem;
+  font-family: var(--font-mono);
+}
+
+/* RESULTS PANEL */
+.results-panel {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow: var(--shadow);
+}
+
+.result-summary {
+  background: linear-gradient(135deg, #0d1a2e, #0e2135);
+  color: #fff;
+  border-radius: 10px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  line-height: 2;
+}
+
+.result-summary .ok   { color: #4fd17a; font-weight: 600; }
+.result-summary .warn { color: #f0b429; font-weight: 600; }
+.result-summary .val  { color: var(--gold); }
+
+.chart-wrap {
+  background: #fafaf7;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  height: 320px;
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--border);
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  padding: 0.5rem 1.2rem;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.03em;
+}
+
+.tab-btn.active, .tab-btn:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.tab-content { display: block; }
+.tab-content.hidden { display: none; }
+
+/* RESULT TABLES */
+.table-scroll { overflow-x: auto; }
+
+.result-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.result-tbl th {
+  background: var(--ink);
+  color: rgba(255,255,255,0.85);
+  padding: 0.55rem 1rem;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.result-tbl td {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.83rem;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.result-tbl tr:hover td { background: var(--cream); }
+
+.result-tbl td.positive { color: #2a9d5c; }
+.result-tbl td.negative { color: var(--accent); }
+.result-tbl td.highlight { font-weight: 600; color: var(--accent2); }
+
+/* ══════════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════════ */
+.footer {
+  background: var(--ink);
+  color: rgba(255,255,255,0.4);
+  padding: 2rem 0;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+}
+
+/* ══════════════════════════════════════════════
+   MATHJAX OVERRIDES (dark backgrounds)
+══════════════════════════════════════════════ */
+.section-dark mjx-container { color: rgba(255,255,255,0.9); }
+.step-block    mjx-container { color: rgba(255,255,255,0.9); }
+.example-card  mjx-container { color: rgba(255,255,255,0.9); }
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .two-col    { grid-template-columns: 1fr; }
+  .field-row  { grid-template-columns: 1fr; }
+  .hero-content { padding: 3rem 1.5rem; }
+  .topnav     { padding: 1rem 1.5rem; }
+}
+
+  </style>
 </head>
 <body>
 
@@ -346,6 +1047,270 @@
     </div>
   </footer>
 
-  <script src="/static/js/main.js"></script>
+  <script>
+/* ═══════════════════════════════════════════
+   Gauss–Newton Calculator  ·  main.js
+═══════════════════════════════════════════ */
+
+// ── Preset configurations ──────────────────
+const PRESETS = {
+  exp: {
+    model:       "a0 * exp(a1 * x)",
+    x_data:      "0, 1, 2, 3",
+    y_data:      "2.0, 0.74, 0.27, 0.10",
+    init_params: "1.0, -1.0",
+  },
+  mm: {
+    model:       "(a0 * x) / (a1 + x)",
+    x_data:      "0.5, 1.0, 2.0, 4.0, 8.0",
+    y_data:      "1.10, 1.60, 2.30, 2.90, 3.40",
+    init_params: "4.0, 1.0",
+  },
+  power: {
+    model:       "a0 * x**a1",
+    x_data:      "1, 2, 3, 4, 5, 6",
+    y_data:      "2.1, 5.8, 11.5, 20.0, 31.0, 44.0",
+    init_params: "2.0, 1.5",
+  },
+  logistic: {
+    model:       "a0 / (1 + exp(-a1 * (x - a2)))",
+    x_data:      "0, 1, 2, 3, 4, 5, 6, 7, 8",
+    y_data:      "0.05, 0.10, 0.26, 0.50, 0.74, 0.88, 0.95, 0.98, 0.99",
+    init_params: "1.0, 1.0, 4.0",
+  },
+};
+
+// ── DOM references ─────────────────────────
+const modelInput  = document.getElementById("model");
+const xInput      = document.getElementById("x_data");
+const yInput      = document.getElementById("y_data");
+const initInput   = document.getElementById("init_params");
+const maxIterInp  = document.getElementById("max_iter");
+const tolInput    = document.getElementById("tol");
+const calcBtn     = document.getElementById("calc-btn");
+const btnText     = calcBtn.querySelector(".btn-text");
+const btnSpinner  = calcBtn.querySelector(".btn-spinner");
+const errorBox    = document.getElementById("error-box");
+const resultsPanel= document.getElementById("results-panel");
+
+let fitChart = null;
+
+// ── Preset buttons ─────────────────────────
+document.querySelectorAll(".preset-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const p = PRESETS[btn.dataset.preset];
+    if (!p) return;
+    modelInput.value  = p.model;
+    xInput.value      = p.x_data;
+    yInput.value      = p.y_data;
+    initInput.value   = p.init_params;
+    resultsPanel.style.display = "none";
+    errorBox.classList.add("hidden");
+  });
+});
+
+// ── Tab switching ──────────────────────────
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach(c => c.classList.add("hidden"));
+    btn.classList.add("active");
+    document.getElementById("tab-" + btn.dataset.tab).classList.remove("hidden");
+  });
+});
+
+// ── Main calculation ───────────────────────
+calcBtn.addEventListener("click", async () => {
+  errorBox.classList.add("hidden");
+  setLoading(true);
+
+  const payload = {
+    model:       modelInput.value.trim(),
+    x_data:      xInput.value.trim(),
+    y_data:      yInput.value.trim(),
+    init_params: initInput.value.trim(),
+    max_iter:    parseInt(maxIterInp.value) || 100,
+    tol:         parseFloat(tolInput.value) || 1e-8,
+  };
+
+  try {
+    const res  = await fetch("/calculate", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify(payload),
+    });
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      showError(data.error || "Unexpected server error.");
+      return;
+    }
+
+    renderResults(data, payload.model);
+  } catch (err) {
+    showError("Network error: " + err.message);
+  } finally {
+    setLoading(false);
+  }
+});
+
+// ── Render results ─────────────────────────
+function renderResults(data, modelExpr) {
+  resultsPanel.style.display = "block";
+  resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  // Summary
+  const status = data.converged
+    ? `<span class="ok">✓ Converged</span>`
+    : `<span class="warn">⚠ Did not converge (max iterations reached)</span>`;
+
+  const paramStrs = data.params.map((v, i) =>
+    `a${i} = <span class="val">${v.toFixed(8)}</span>`
+  ).join("  &nbsp;|&nbsp;  ");
+
+  document.getElementById("result-summary").innerHTML = `
+    Status: ${status}<br>
+    Iterations: <span class="val">${data.num_iterations}</span><br>
+    Final RSS: <span class="val">${data.rss.toExponential(4)}</span><br>
+    ${paramStrs}
+  `;
+
+  // Chart
+  renderChart(data);
+
+  // Parameters table
+  buildParamsTable(data.params);
+
+  // Iterations table
+  buildIterationsTable(data.iterations);
+
+  // Residuals table
+  buildResidualsTable(data.x_data, data.y_data, data.residuals);
+
+  // Show first tab
+  document.querySelectorAll(".tab-btn").forEach((b,i) => b.classList.toggle("active", i===0));
+  document.querySelectorAll(".tab-content").forEach((c,i) => c.classList.toggle("hidden", i!==0));
+}
+
+function renderChart(data) {
+  const ctx = document.getElementById("fitChart").getContext("2d");
+  if (fitChart) fitChart.destroy();
+
+  fitChart = new Chart(ctx, {
+    type: "scatter",
+    data: {
+      datasets: [
+        {
+          label: "Observed data",
+          data: data.x_data.map((x,i) => ({ x, y: data.y_data[i] })),
+          backgroundColor: "#c8500a",
+          pointRadius: 7,
+          pointHoverRadius: 9,
+        },
+        {
+          label: "Fitted curve",
+          data: data.curve_x.map((x,i) => ({ x, y: data.curve_y[i] })),
+          type: "line",
+          borderColor: "#1a6b8a",
+          borderWidth: 2.5,
+          pointRadius: 0,
+          fill: false,
+          tension: 0.4,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: { font: { family: "'Outfit', sans-serif", size: 12 }, color: "#333" }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => `(${ctx.parsed.x.toFixed(4)},  ${ctx.parsed.y.toFixed(6)})`,
+          }
+        }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: "x", font: { size: 13 }, color: "#555" },
+          grid: { color: "rgba(0,0,0,0.05)" },
+        },
+        y: {
+          title: { display: true, text: "y", font: { size: 13 }, color: "#555" },
+          grid: { color: "rgba(0,0,0,0.05)" },
+        },
+      },
+    },
+  });
+}
+
+function buildParamsTable(params) {
+  const tbl = document.getElementById("params-table");
+  let html = `<thead><tr><th>Parameter</th><th>Symbol</th><th>Value</th></tr></thead><tbody>`;
+  params.forEach((v, i) => {
+    html += `<tr>
+      <td class="highlight">a${i}</td>
+      <td>p<sub>${i+1}</sub></td>
+      <td>${v.toFixed(10)}</td>
+    </tr>`;
+  });
+  html += `</tbody>`;
+  tbl.innerHTML = html;
+}
+
+function buildIterationsTable(iterations) {
+  if (!iterations || iterations.length === 0) {
+    document.getElementById("iters-table").innerHTML = "<tr><td>No iteration data.</td></tr>";
+    return;
+  }
+  const nParams = iterations[0].params.length;
+  let header = `<thead><tr><th>Iter</th>`;
+  for (let j = 0; j < nParams; j++) header += `<th>a${j}</th>`;
+  header += `<th>RSS</th><th>‖δ‖</th></tr></thead>`;
+
+  let rows = "<tbody>";
+  iterations.forEach(it => {
+    rows += `<tr><td class="highlight">${it.iteration}</td>`;
+    it.params.forEach(p => { rows += `<td>${p.toFixed(6)}</td>`; });
+    rows += `<td>${it.rss.toExponential(4)}</td>`;
+    rows += `<td>${it.delta_norm.toExponential(4)}</td>`;
+    rows += `</tr>`;
+  });
+  rows += "</tbody>";
+  document.getElementById("iters-table").innerHTML = header + rows;
+}
+
+function buildResidualsTable(xData, yData, residuals) {
+  let html = `<thead><tr><th>i</th><th>xᵢ</th><th>yᵢ (observed)</th><th>rᵢ (residual)</th><th>rᵢ²</th></tr></thead><tbody>`;
+  xData.forEach((x, i) => {
+    const r = residuals[i];
+    const cls = r >= 0 ? "positive" : "negative";
+    html += `<tr>
+      <td class="highlight">${i+1}</td>
+      <td>${x}</td>
+      <td>${yData[i]}</td>
+      <td class="${cls}">${r.toFixed(8)}</td>
+      <td>${(r*r).toExponential(4)}</td>
+    </tr>`;
+  });
+  html += `</tbody>`;
+  document.getElementById("residuals-table").innerHTML = html;
+}
+
+// ── Helpers ────────────────────────────────
+function setLoading(state) {
+  calcBtn.disabled = state;
+  btnText.classList.toggle("hidden", state);
+  btnSpinner.classList.toggle("hidden", !state);
+}
+
+function showError(msg) {
+  errorBox.textContent = "⚠ " + msg;
+  errorBox.classList.remove("hidden");
+}
+
+  </script>
 </body>
 </html>
