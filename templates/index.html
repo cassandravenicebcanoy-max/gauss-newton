@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gauss–Newton Method | Nonlinear Least Squares</title>
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+  <!-- ══════════════════ HERO ══════════════════ -->
+  <header class="hero">
+    <div class="hero-bg"></div>
+    <nav class="topnav">
+      <span class="brand">NumMethods</span>
+      <span class="topic-badge">Topic #23</span>
+    </nav>
+    <div class="hero-content">
+      <p class="pre-title">Nonlinear Least Squares</p>
+      <h1>Gauss–Newton<br><em>Method</em></h1>
+      <p class="hero-sub">Iterative curve fitting for nonlinear models via linearized normal equations</p>
+      <div class="hero-pills">
+        <span>Optimization</span><span>Curve Fitting</span><span>Iterative</span>
+      </div>
+      <a href="#discussion" class="cta-btn">Explore the Method ↓</a>
+    </div>
+    <div class="scroll-line"></div>
+  </header>
+
+  <!-- ══════════════════ DISCUSSION ══════════════════ -->
+  <section id="discussion" class="section">
+    <div class="container">
+      <div class="section-label">Mathematical Foundation</div>
+      <h2 class="section-title">Theory &amp; Discussion</h2>
+
+      <div class="card">
+        <h3>Problem Statement</h3>
+        <p>
+          Given $m$ observed data pairs $\{(x_i, y_i)\}_{i=1}^m$ and a nonlinear model
+          $f(x;\,\mathbf{p})$ parametrized by $\mathbf{p} = (p_1, p_2, \ldots, p_n)^T$,
+          the goal is to minimize the residual sum of squares:
+        </p>
+        $$S(\mathbf{p}) = \sum_{i=1}^{m} r_i^2 = \|\mathbf{r}\|^2$$
+        <p>where the residuals are defined as</p>
+        $$r_i(\mathbf{p}) = y_i - f(x_i;\,\mathbf{p})$$
+      </div>
+
+      <div class="card">
+        <h3>The Gauss–Newton Update</h3>
+        <p>
+          Starting from an initial guess $\mathbf{p}^{(0)}$, the method linearizes the
+          model at each iterate using a first-order Taylor expansion:
+        </p>
+        $$f(x_i;\,\mathbf{p}+\boldsymbol{\delta}) \approx f(x_i;\,\mathbf{p}) + \mathbf{J}_i\,\boldsymbol{\delta}$$
+        <p>
+          where $\mathbf{J}$ is the <strong>Jacobian matrix</strong>:
+        </p>
+        $$J_{ij} = \frac{\partial f(x_i;\,\mathbf{p})}{\partial p_j}$$
+        <p>Substituting into $S$ and minimizing over $\boldsymbol{\delta}$ yields the <strong>normal equations</strong>:</p>
+        $$(\mathbf{J}^T\mathbf{J})\,\boldsymbol{\delta} = \mathbf{J}^T\mathbf{r}$$
+        <p>The parameters are then updated:</p>
+        $$\mathbf{p}^{(k+1)} = \mathbf{p}^{(k)} + \boldsymbol{\delta}^{(k)}$$
+      </div>
+
+      <div class="card">
+        <h3>Algorithm Steps</h3>
+        <ol class="algo-list">
+          <li>Choose initial parameter guess $\mathbf{p}^{(0)}$</li>
+          <li>Compute residuals $\mathbf{r} = \mathbf{y} - \mathbf{f}(\mathbf{p})$</li>
+          <li>Build the Jacobian $\mathbf{J}$ (analytically or via finite differences)</li>
+          <li>Solve the normal equations $(\mathbf{J}^T\mathbf{J})\,\boldsymbol{\delta} = \mathbf{J}^T\mathbf{r}$</li>
+          <li>Update: $\mathbf{p} \leftarrow \mathbf{p} + \boldsymbol{\delta}$</li>
+          <li>Repeat until $\|\boldsymbol{\delta}\| &lt; \varepsilon$ or max iterations reached</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Convergence &amp; Limitations</h3>
+        <div class="two-col">
+          <div class="pros">
+            <h4>✓ Strengths</h4>
+            <ul>
+              <li>Quadratic convergence near the solution</li>
+              <li>No need for second derivatives (Hessian approximated as $\mathbf{J}^T\mathbf{J}$)</li>
+              <li>Works well when residuals are small at the solution</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <h4>✗ Limitations</h4>
+            <ul>
+              <li>May diverge with poor initial guess</li>
+              <li>Singular $\mathbf{J}^T\mathbf{J}$ if parameters are linearly dependent</li>
+              <li>Slower on large-residual problems (Levenberg–Marquardt preferred)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════ EXAMPLES ══════════════════ -->
+  <section id="examples" class="section section-dark">
+    <div class="container">
+      <div class="section-label">Worked Examples</div>
+      <h2 class="section-title">Step-by-Step Solutions</h2>
+
+      <!-- EXAMPLE 1 -->
+      <div class="example-card">
+        <div class="example-number">01</div>
+        <h3>Exponential Decay Model</h3>
+        <p class="model-desc">Model: $f(x;\,a_0,a_1) = a_0\,e^{a_1 x}$</p>
+
+        <div class="step-block">
+          <div class="step-label">Given Data</div>
+          <div class="data-table-wrap">
+            <table class="data-tbl">
+              <thead><tr><th>$i$</th><th>$x_i$</th><th>$y_i$</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>0</td><td>2.00</td></tr>
+                <tr><td>2</td><td>1</td><td>0.74</td></tr>
+                <tr><td>3</td><td>2</td><td>0.27</td></tr>
+                <tr><td>4</td><td>3</td><td>0.10</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Initial guess: $\mathbf{p}^{(0)} = (a_0, a_1) = (1.0,\,-1.0)$</p>
+        </div>
+
+        <div class="step-block">
+          <div class="step-label">Iteration 1 — Compute Residuals</div>
+          <p>Evaluate $f(x_i;\,1.0,\,-1.0) = e^{-x_i}$:</p>
+          $$r_1 = 2.00 - 1.000 = 1.000$$
+          $$r_2 = 0.74 - 0.368 = 0.372$$
+          $$r_3 = 0.27 - 0.135 = 0.135$$
+          $$r_4 = 0.10 - 0.050 = 0.050$$
+          <p>$S = 1.000^2 + 0.372^2 + 0.135^2 + 0.050^2 = 1.156$</p>
+        </div>
+
+        <div class="step-block">
+          <div class="step-label">Iteration 1 — Build Jacobian</div>
+          <p>Partial derivatives:</p>
+          $$\frac{\partial f}{\partial a_0} = e^{a_1 x}, \qquad \frac{\partial f}{\partial a_1} = a_0\,x\,e^{a_1 x}$$
+          $$\mathbf{J} = \begin{pmatrix} e^{0} & 0 \\ e^{-1} & -e^{-1} \\ e^{-2} & -2e^{-2} \\ e^{-3} & -3e^{-3} \end{pmatrix} = \begin{pmatrix} 1.000 & 0.000 \\ 0.368 & -0.368 \\ 0.135 & -0.271 \\ 0.050 & -0.149 \end{pmatrix}$$
+        </div>
+
+        <div class="step-block">
+          <div class="step-label">Iteration 1 — Normal Equations</div>
+          $$\mathbf{J}^T\mathbf{J} = \begin{pmatrix} 1.289 & -0.218 \\ -0.218 & 0.215 \end{pmatrix}$$
+          $$\mathbf{J}^T\mathbf{r} = \begin{pmatrix} 1.185 \\ -0.156 \end{pmatrix}$$
+          <p>Solving: $\boldsymbol{\delta}^{(1)} = (1.014,\, 0.534)^T$</p>
+          <p>Update: $\mathbf{p}^{(1)} = (1.0+1.014,\; -1.0+0.534) = (2.014,\,-0.466)$</p>
+        </div>
+
+        <div class="step-block">
+          <div class="step-label">After Convergence (≈ 6 iterations)</div>
+          <p>The algorithm converges to the <strong>optimal parameters</strong>:</p>
+          $$a_0^* \approx 2.009, \qquad a_1^* \approx -1.002$$
+          <p>
+            This closely matches the true exponential $f(x) \approx 2\,e^{-x}$
+            with a final residual sum of squares $S^* \approx 0.0004$.
+          </p>
+          <div class="result-box">
+            <strong>Result:</strong> $f(x) = 2.009\,e^{-1.002\,x}$
+          </div>
+        </div>
+      </div>
+
+      <!-- EXAMPLE 2 -->
+      <div class="example-card">
+        <div class="example-number">02</div>
+        <h3>Michaelis–Menten Kinetics Model</h3>
+        <p class="model-desc">Model: $f(x;\,a_0,a_1) = \dfrac{a_0\,x}{a_1 + x}$</p>
+
+        <div class="step-block">
+          <div class="step-label">Given Data</div>
+          <div class="data-table-wrap">
+            <table class="data-tbl">
+              <thead><tr><th>$i$</th><th>$x_i$ (substrate)</th><th>$y_i$ (velocity)</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>0.5</td><td>1.10</td></tr>
+                <tr><td>2</td><td>1.0</td><td>1.60</td></tr>
+                <tr><td>3</td><td>2.0</td><td>2.30</td></tr>
+                <tr><td>4</td><td>4.0</td><td>2.90</td></tr>
+                <tr><td>5</td><td>8.0</td><td>3.40</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Initial guess: $(a_0, a_1) = (4.0,\,1.0)$</p>
+        </div>
+
+        <div class="step-block">
+          <div class="step-label">Iteration 1 — Residuals</div>
+          <p>Evaluate $f(x_i;\,4.0,\,1.0) = 4x/(1+x)$:</p>
+          $$r_1 = 1.10 - 1.333 = -0.233$$
+          $$r_2 = 1.60 - 2.000 = -0.400$$
+          $$r_3 = 2.30 - 2.667 = -0.367$$
+          $$r_4 = 2.90 - 3.200 = -0.300$$
+          $$r_5 = 3.40 - 3.556 = -0.156$$
+          <p>$S = 0.054 + 0.160 + 0.135 + 0.090 + 0.024 = 0.463$</p>
+        </div>
+
+        <div class="step-block">
+          <div class="step-label">Iteration 1 — Jacobian</div>
+          <p>Partial derivatives of $f = a_0 x/(a_1+x)$:</p>
+          $$\frac{\partial f}{\partial a_0} = \frac{x}{a_1+x}, \qquad \frac{\partial f}{\partial a_1} = \frac{-a_0\,x}{(a_1+x)^2}$$
+          <p>Evaluated at $(4.0,\,1.0)$:</p>
+          $$\mathbf{J} = \begin{pmatrix} 0.333 & -0.444 \\ 0.500 & -1.000 \\ 0.667 & -1.333 \\ 0.800 & -1.280 \\ 0.889 & -0.790 \end{pmatrix}$$
+        </div>
+
+        <div class="step-block">
+          <div class="step-label">Normal Equations &amp; Update</div>
+          $$\mathbf{J}^T\mathbf{J} = \begin{pmatrix} 2.287 & -3.079 \\ -3.079 & 5.420 \end{pmatrix}$$
+          $$\mathbf{J}^T\mathbf{r} = \begin{pmatrix} -0.718 \\ 0.842 \end{pmatrix}$$
+          <p>$\boldsymbol{\delta}^{(1)} = (-0.221,\, -0.028)^T$</p>
+          <p>$\mathbf{p}^{(1)} = (3.779,\, 0.972)$</p>
+        </div>
+
+        <div class="step-block">
+          <div class="step-label">Convergence Result</div>
+          <p>After several iterations the algorithm converges to:</p>
+          $$a_0^* \approx 3.748, \qquad a_1^* \approx 0.884$$
+          <div class="result-box">
+            <strong>Result:</strong> $f(x) = \dfrac{3.748\,x}{0.884 + x}$
+            &nbsp; with $S^* \approx 0.0071$
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════ CALCULATOR ══════════════════ -->
+  <section id="calculator" class="section">
+    <div class="container">
+      <div class="section-label">Interactive Tool</div>
+      <h2 class="section-title">Calculator</h2>
+      <p class="calc-intro">
+        Enter your nonlinear model using <code>a0, a1, …</code> for parameters and <code>x</code>
+        for the independent variable. Separate data values with commas.
+      </p>
+
+      <div class="calc-layout">
+        <!-- INPUT PANEL -->
+        <div class="input-panel">
+          <div class="field-group">
+            <label>Model Expression <span class="hint">use a0, a1, … and x</span></label>
+            <input type="text" id="model" placeholder="e.g.  a0 * exp(a1 * x)" value="a0 * exp(a1 * x)" />
+          </div>
+
+          <div class="field-row">
+            <div class="field-group">
+              <label>x data <span class="hint">comma-separated</span></label>
+              <input type="text" id="x_data" placeholder="0, 1, 2, 3" value="0, 1, 2, 3" />
+            </div>
+            <div class="field-group">
+              <label>y data <span class="hint">comma-separated</span></label>
+              <input type="text" id="y_data" placeholder="2.0, 0.74, 0.27, 0.10" value="2.0, 0.74, 0.27, 0.10" />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label>Initial Parameters <span class="hint">comma-separated (one per a0, a1, …)</span></label>
+            <input type="text" id="init_params" placeholder="1.0, -1.0" value="1.0, -1.0" />
+          </div>
+
+          <div class="field-row">
+            <div class="field-group">
+              <label>Max Iterations</label>
+              <input type="number" id="max_iter" value="100" min="1" max="500" />
+            </div>
+            <div class="field-group">
+              <label>Tolerance ($\varepsilon$)</label>
+              <input type="text" id="tol" value="1e-8" />
+            </div>
+          </div>
+
+          <div class="preset-row">
+            <span class="preset-label">Presets:</span>
+            <button class="preset-btn" data-preset="exp">Exponential</button>
+            <button class="preset-btn" data-preset="mm">Michaelis–Menten</button>
+            <button class="preset-btn" data-preset="power">Power Law</button>
+            <button class="preset-btn" data-preset="logistic">Logistic</button>
+          </div>
+
+          <button id="calc-btn" class="run-btn">
+            <span class="btn-text">Run Gauss–Newton</span>
+            <span class="btn-spinner hidden">⟳</span>
+          </button>
+
+          <div id="error-box" class="error-box hidden"></div>
+        </div>
+
+        <!-- RESULTS PANEL -->
+        <div class="results-panel" id="results-panel" style="display:none">
+
+          <div class="result-summary" id="result-summary"></div>
+
+          <div class="chart-wrap">
+            <canvas id="fitChart"></canvas>
+          </div>
+
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="params">Parameters</button>
+            <button class="tab-btn" data-tab="iters">Iterations</button>
+            <button class="tab-btn" data-tab="residuals">Residuals</button>
+          </div>
+
+          <div class="tab-content" id="tab-params">
+            <table class="result-tbl" id="params-table"></table>
+          </div>
+
+          <div class="tab-content hidden" id="tab-iters">
+            <div class="table-scroll">
+              <table class="result-tbl" id="iters-table"></table>
+            </div>
+          </div>
+
+          <div class="tab-content hidden" id="tab-residuals">
+            <table class="result-tbl" id="residuals-table"></table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════ FOOTER ══════════════════ -->
+  <footer class="footer">
+    <div class="container">
+      <p>PIT Project · Topic #23 · Nonlinear Least Squares (Gauss–Newton) · Flask + MathJax</p>
+    </div>
+  </footer>
+
+  <script src="/static/js/main.js"></script>
+</body>
+</html>
